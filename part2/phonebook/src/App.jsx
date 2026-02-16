@@ -1,69 +1,20 @@
-import { useState } from 'react';
-
-const Filter = ({ filter, setFilter }) => {
-    const handleFilterChange = (event) => {
-        setFilter(event.target.value);
-    };
-
-    return (
-        <div>
-            filter shown with <input value={filter} onChange={handleFilterChange} />
-        </div>
-    );
-};
-
-const Person = ({ person }) => {
-    return (
-        <p>
-            {person.name} {person.number}
-        </p>
-    );
-};
-
-const PersonForm = ({ newName, newNumber, setNewName, setNewNumber, onAddPerson }) => {
-    const handlePersonChange = (event) => {
-        setNewName(event.target.value);
-    };
-
-    const handleNumberChange = (event) => {
-        setNewNumber(event.target.value);
-    };
-
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        onAddPerson();
-    };
-
-    return (
-        <form onSubmit={handleSubmit}>
-            <div>
-                name: <input value={newName} onChange={handlePersonChange} />
-            </div>
-            <div>
-                number: <input value={newNumber} onChange={handleNumberChange} />
-            </div>
-            <div>
-                <button type="submit">add</button>
-            </div>
-        </form>
-    );
-};
-
-const Persons = ({ persons }) => {
-    return (
-        <div>
-            {persons.map((person) => (
-                <Person key={person.id} person={person} />
-            ))}
-        </div>
-    );
-};
+import { useState, useEffect } from 'react';
+import Filter from './components/Filter';
+import PersonForm from './components/PersonForm';
+import Persons from './components/Persons';
+import axios from 'axios';
 
 const App = () => {
     const [persons, setPersons] = useState([]);
     const [newName, setNewName] = useState('');
     const [newNumber, setNewNumber] = useState('');
     const [filter, setFilter] = useState('');
+
+    useEffect(() => {
+        axios.get('http://localhost:3001/persons').then((response) => {
+            setPersons(response.data);
+        });
+    }, []);
 
     const personsToShow = persons.filter((person) => {
         return person.name.toLowerCase().includes(filter.toLowerCase());
