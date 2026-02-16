@@ -20,28 +20,7 @@ const Person = ({ person }) => {
     );
 };
 
-const PersonForm = ({ persons, newName, newNumber, setNewName, setNewNumber, setPersons }) => {
-    const addNewEntry = (event) => {
-        event.preventDefault();
-        console.log('button clicked', event.target);
-        const personObject = {
-            name: newName,
-            number: newNumber,
-            id: String(persons.length + 1),
-        };
-
-        if (persons.some((person) => person.name === newName)) {
-            alert(`${newName} is already added to phonebook`);
-            return;
-        }
-
-        console.log('Adding:', personObject);
-
-        setPersons(persons.concat(personObject));
-        setNewName('');
-        setNewNumber('');
-    };
-
+const PersonForm = ({ newName, newNumber, setNewName, setNewNumber, onAddPerson }) => {
     const handlePersonChange = (event) => {
         setNewName(event.target.value);
     };
@@ -50,8 +29,13 @@ const PersonForm = ({ persons, newName, newNumber, setNewName, setNewNumber, set
         setNewNumber(event.target.value);
     };
 
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        onAddPerson();
+    };
+
     return (
-        <form onSubmit={addNewEntry}>
+        <form onSubmit={handleSubmit}>
             <div>
                 name: <input value={newName} onChange={handlePersonChange} />
             </div>
@@ -85,6 +69,22 @@ const App = () => {
         return person.name.toLowerCase().includes(filter.toLowerCase());
     });
 
+    const handleAddPerson = () => {
+        if (persons.some((person) => person.name === newName)) {
+            alert(`${newName} is already added to phonebook`);
+            return;
+        }
+        const personObject = {
+            name: newName,
+            number: newNumber,
+            id: String(persons.length + 1),
+        };
+
+        setPersons(persons.concat(personObject));
+        setNewName('');
+        setNewNumber('');
+    };
+
     return (
         <div>
             <h2>Phonebook</h2>
@@ -92,12 +92,11 @@ const App = () => {
 
             <h2>add a new</h2>
             <PersonForm
-                persons={persons}
                 newName={newName}
                 newNumber={newNumber}
                 setNewName={setNewName}
                 setNewNumber={setNewNumber}
-                setPersons={setPersons}
+                onAddPerson={handleAddPerson}
             />
 
             <h2>Numbers</h2>
