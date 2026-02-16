@@ -1,16 +1,25 @@
-const Person = ({ person }) => {
+const Person = ({ person, onRemovePerson }) => {
     return (
-        <p>
+        <div>
             {person.name} {person.number}
-        </p>
+            <button
+                onClick={() => {
+                    if (window.confirm(`Delete ${person.name}?`)) {
+                        onRemovePerson();
+                    }
+                }}
+            >
+                delete
+            </button>
+        </div>
     );
 };
 
-const Persons = ({ persons }) => {
+const Persons = ({ persons, handleRemovePerson }) => {
     return (
         <div>
             {persons.map((person) => (
-                <Person key={person.id} person={person} />
+                <Person key={person.id} person={person} onRemovePerson={() => handleRemovePerson(person.id)} />
             ))}
         </div>
     );

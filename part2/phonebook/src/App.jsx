@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import Filter from './components/Filter';
 import PersonForm from './components/PersonForm';
 import Persons from './components/Persons';
-import axios from 'axios';
+import personService from './services/persons';
 
 const App = () => {
     const [persons, setPersons] = useState([]);
@@ -11,8 +11,8 @@ const App = () => {
     const [filter, setFilter] = useState('');
 
     useEffect(() => {
-        axios.get('http://localhost:3001/persons').then((response) => {
-            setPersons(response.data);
+        personService.getAll().then((initialPersons) => {
+            setPersons(initialPersons);
         });
     }, []);
 
@@ -21,19 +21,45 @@ const App = () => {
     });
 
     const handleAddPerson = () => {
-        if (persons.some((person) => person.name === newName)) {
-            alert(`${newName} is already added to phonebook`);
+        const existingPerson = persons.find((person) => person.name === newName);
+        if (existingPerson) {
+            if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+                const changedPerson = { ...existingPerson, number: newNumber };
+                personService.update(existingPerson.id, changedPerson)
+                    .then((returnedPerson) => {
+                        setPersons(persons.map(p => p.id !== existingPerson.id ? p : returnedPerson));
+                        setNewName('');
+                        setNewNumber('');
+                    })
+                    .catch(error => {
+                        alert(`Information of ${newName} has already been removed from server`);
+                        setPersons(persons.filter(p => p.id !== existingPerson.id));
+                    });
+            }
             return;
         }
         const personObject = {
             name: newName,
             number: newNumber,
-            id: String(persons.length + 1),
         };
+        personService.create(personObject).then((returnedPerson) => {
+            setPersons(persons.concat(returnedPerson));
+            setNewName('');
+            setNewNumber('');
+        });
+    };
 
-        setPersons(persons.concat(personObject));
-        setNewName('');
-        setNewNumber('');
+    const handleRemovePerson = (id) => {
+        console.log('removing', id);
+        personService
+            .remove(id)
+            .then(() => {
+                setPersons(persons.filter((person) => person.id !== id));
+            })
+            .catch(error => {
+                alert('the person was already deleted from server');
+                setPersons(persons.filter(p => p.id !== id));
+            });
     };
 
     return (
@@ -51,7 +77,7 @@ const App = () => {
             />
 
             <h2>Numbers</h2>
-            <Persons persons={personsToShow} />
+            <Persons persons={personsToShow} handleRemovePerson={handleRemovePerson} />
         </div>
     );
 };
