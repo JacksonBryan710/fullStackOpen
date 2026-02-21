@@ -46,7 +46,7 @@ const App = () => {
                     .then((returnedPerson) => {
                         setPersons(persons.map(p => p.id !== existingPerson.id ? p : returnedPerson));
                         resetFields();
-                        showNotification(`Updates ${returnedPerson.name}'s number`, 'success');
+                        showNotification(`Updated ${returnedPerson.name}'s number`, 'success');
                     })
                     .catch(error => {
                         showNotification(`Information of ${existingPerson.name} has already been removed from server`, 'error');
