@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import noteService from './services/notes';
 import Note from './components/Note';
 import Notification from './components/Notification';
@@ -12,33 +11,27 @@ const App = () => {
     const [errorMessage, setErrorMessage] = useState(null);
 
     useEffect(() => {
-        noteService
-            .getAll()
-            .then((initialNotes) => {
-                setNotes(initialNotes)
-            })
+        noteService.getAll().then((initialNotes) => {
+            setNotes(initialNotes);
+        });
     }, []);
-    console.log('render', notes.length, 'notes');
 
     const toggleImportanceOf = (id) => {
-        const note = notes.find(n => n.id === id);
+        const note = notes.find((n) => n.id === id);
         const changedNote = { ...note, important: !note.important };
-
         noteService
             .update(id, changedNote)
             .then((returnedNote) => {
-                setNotes(notes.map(note => note.id === id ? returnedNote : note))
+                setNotes(notes.map((note) => (note.id === id ? returnedNote : note)));
             })
-            .catch(error => {
-                setErrorMessage(
-                    `Note '${note.content}' was already removed from server`
-                );
+            .catch(() => {
+                setErrorMessage(`Note '${note.content}' was already removed from server`);
                 setTimeout(() => {
-                    setErrorMessage(null)
-                }, 5000)
-                setNotes(notes.filter(n => n.id !== id))
-            })
-    }
+                    setErrorMessage(null);
+                }, 5000);
+                setNotes(notes.filter((n) => n.id !== id));
+            });
+    };
 
     const addNote = (event) => {
         event.preventDefault();
@@ -47,12 +40,10 @@ const App = () => {
             important: Math.random() > 0.5,
         };
 
-        noteService
-            .create(noteObject)
-            .then((returnedNote) => {
-                setNotes(notes.concat(returnedNote));
-                setNewNote('');
-            })
+        noteService.create(noteObject).then((returnedNote) => {
+            setNotes(notes.concat(returnedNote));
+            setNewNote('');
+        });
     };
 
     const handleNoteChange = (event) => {
@@ -70,7 +61,7 @@ const App = () => {
             </div>
             <ul>
                 {notesToShow.map((note) => (
-                    <Note key={note.id} note={note} toggleImportance={() =>toggleImportanceOf(note.id)} />
+                    <Note key={note.id} note={note} toggleImportance={() => toggleImportanceOf(note.id)} />
                 ))}
             </ul>
             <form onSubmit={addNote}>
