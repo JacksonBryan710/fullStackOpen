@@ -59,11 +59,18 @@ const App = () => {
             name: newName,
             number: newNumber,
         };
-        personService.create(personObject).then((returnedPerson) => {
-            setPersons(persons.concat(returnedPerson));
-            resetFields();
-            showNotification(`Added ${returnedPerson.name}`, 'success');
-        });
+        personService
+            .create(personObject)
+            .then((returnedPerson) => {
+                setPersons(persons.concat(returnedPerson));
+                resetFields();
+                console.log(returnedPerson.name)
+                showNotification(`Added ${returnedPerson.name}`, 'success');
+            })
+            .catch(error => {
+                showNotification(`${error.response.data.error}`, 'error')
+            }
+            );
     };
 
     const handleRemovePerson = (id) => {
